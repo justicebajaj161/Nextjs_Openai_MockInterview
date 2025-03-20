@@ -20,6 +20,7 @@ export default function Home() {
   const [currentCodingQuestionIndex, setCurrentCodingQuestionIndex] = useState(0);
   const [codingResults, setCodingResults] = useState([]);
   const [showCodingSummary, setShowCodingSummary] = useState(false);
+  const [hasSubmitted, setHasSubmitted] = useState(false); // Track if the user has submitted code
 
   // Load roles from JSON
   const roles = data.roles.map((roleData) => roleData.role);
@@ -126,22 +127,21 @@ export default function Home() {
     }
   };
 
-  const handleSubmitCode = (code, isCorrect, evaluationResult) => {
+  const handleSubmitCode = (code, isCorrect, feedback) => {
     // Save the result for the current question
     setCodingResults((prev) => [
       ...prev,
-      { code, isCorrect, evaluationResult },
+      { code, isCorrect, feedback },
     ]);
 
-    // Display results in the UI (no alert)
-    console.log("Submitted code:", code);
-    console.log("Is correct?", isCorrect);
-    console.log("Evaluation Result:", evaluationResult);
+    // Mark that the user has submitted at least once
+    setHasSubmitted(true);
   };
 
   const handleNextCodingQuestion = () => {
     if (currentCodingQuestionIndex < codingQuestions.codingQuestions.length - 1) {
       setCurrentCodingQuestionIndex((prev) => prev + 1);
+      setHasSubmitted(false); // Reset submission state for the next question
     } else {
       // Show summary if it's the last question
       setShowCodingSummary(true);
@@ -285,6 +285,7 @@ export default function Home() {
               onSubmit={handleSubmitCode}
               onNext={handleNextCodingQuestion}
               isLastQuestion={currentCodingQuestionIndex === codingQuestions.codingQuestions.length - 1}
+              hasSubmitted={hasSubmitted}
             />
           </div>
         )}

@@ -1,10 +1,15 @@
-"use client";
-
 import { useState, useEffect } from "react";
 import Editor from "@monaco-editor/react";
 
-export default function CodingEditor({ initialCode, onCodeChange }) {
+export default function CodingEditor({ initialCode, onCodeChange, clearEditor }) {
   const [code, setCode] = useState(initialCode || "");
+
+  // Clear the editor when `clearEditor` prop changes
+  useEffect(() => {
+    if (clearEditor) {
+      setCode("");
+    }
+  }, [clearEditor]);
 
   const handleEditorChange = (value) => {
     setCode(value);

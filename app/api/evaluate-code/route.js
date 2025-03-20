@@ -21,10 +21,15 @@ export async function POST(request) {
 
       Instructions:
       1. Analyze the code and determine if it produces the expected output.
-      2. If the code is correct, respond with "Correct".
-      3. If the code is incorrect, respond with "Incorrect" and explain why.
+      2. Respond with a JSON object that includes:
+         - "isCorrect": true if the code is correct, false otherwise.
+         - "feedback": A string explaining why the code is correct or incorrect.
 
-      Your response:
+      Your response should be in the following format:
+      {
+        "isCorrect": true,
+        "feedback": "The code is correct because..."
+      } 
     `;
 
     // Call OpenAI to evaluate the code
@@ -39,13 +44,11 @@ export async function POST(request) {
     });
 
     const evaluationResult = response.choices[0].message.content.trim();
-
-    // Determine if the code is correct
-    const isCorrect = evaluationResult.toLowerCase().includes("correct");
+    const evaluationData = JSON.parse(evaluationResult);
 
     return NextResponse.json({
-      isCorrect,
-      evaluationResult,
+      isCorrect: evaluationData.isCorrect,
+      feedback: evaluationData.feedback,
     });
   } catch (error) {
     console.error("Error evaluating code:", error);
