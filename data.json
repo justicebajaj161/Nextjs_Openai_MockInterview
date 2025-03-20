@@ -1,0 +1,24 @@
+{
+    "roles": [
+      {
+        "role": "Frontend Developer",
+        "skills": ["React.js", "Angular.js", "Vue.js", "Next.js", "JavaScript", "HTML/CSS"]
+      },
+      {
+        "role": "Backend Developer",
+        "skills": ["Node.js", "Express.js", "Django", "Spring Boot", "Ruby on Rails", "PHP"]
+      },
+      {
+        "role": "Full Stack Developer",
+        "skills": ["MERN Stack", "MEAN Stack", "LAMP Stack", "Django + React", "Spring Boot + Angular"]
+      },
+      {
+        "role": "DevOps Engineer",
+        "skills": ["Docker", "Kubernetes", "AWS", "Azure", "Terraform", "Jenkins"]
+      },
+      {
+        "role": "Data Scientist",
+        "skills": ["Python", "R", "Machine Learning", "Deep Learning", "Pandas", "TensorFlow"]
+      }
+    ]
+  }

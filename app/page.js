@@ -1,103 +1,199 @@
-import Image from "next/image";
+"use client";
+
+import { useState, useEffect } from "react";
+import Question from "@/components/Question";
+import QuizReport from "@/components/QuizReport";
+import data from "@/data.json";
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.js
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [role, setRole] = useState("");
+  const [skill, setSkill] = useState("");
+  const [questions, setQuestions] = useState(null);
+  const [userAnswers, setUserAnswers] = useState({});
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [quizReport, setQuizReport] = useState(null);
+  const [skillsList, setSkillsList] = useState([]);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+  // Load roles from JSON
+  const roles = data.roles.map((roleData) => roleData.role);
+
+  // Update skills list when role changes
+  useEffect(() => {
+    if (role) {
+      const selectedRole = data.roles.find((roleData) => roleData.role === role);
+      setSkillsList(selectedRole ? selectedRole.skills : []);
+      setSkill(""); // Reset skill when role changes
+    } else {
+      setSkillsList([]);
+    }
+  }, [role]);
+
+  const handleGenerateQuestions = async () => {
+    if (!role || !skill) {
+      alert("Please select both role and skill.");
+      return;
+    }
+
+    setIsGenerating(true);
+    setQuestions(null);
+    setUserAnswers({});
+    setCurrentQuestionIndex(0);
+
+    try {
+      const response = await fetch("/api/generate-questions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ role, skill }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to generate questions");
+      }
+
+      const data = await response.json();
+      setQuestions(data);
+    } catch (error) {
+      console.error("Error:", error);
+      alert("Failed to generate questions. Please try again.");
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const handleNextQuestion = () => {
+    if (currentQuestionIndex < questions.mcqs.length - 1) {
+      setCurrentQuestionIndex(currentQuestionIndex + 1);
+    }
+  };
+
+  const handleSubmitAnswers = () => {
+    const report = [];
+    let correctAnswers = 0;
+
+    questions.mcqs.forEach((question, idx) => {
+      const userAnswer = userAnswers[idx];
+      const correctAnswer = question.correct;
+      const isCorrect = userAnswer === correctAnswer;
+
+      if (isCorrect) correctAnswers++;
+
+      report.push(
+        `Question ${idx + 1}: ${
+          isCorrect ? "Correct" : "Incorrect"
+        }. Your answer: ${userAnswer}, Correct answer: ${correctAnswer}`
+      );
+    });
+
+    setQuizReport({
+      report,
+      totalQuestions: questions.mcqs.length,
+      correctAnswers,
+      score: (correctAnswers / questions.mcqs.length) * 100,
+    });
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-100 py-8">
+      <div className="max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-md">
+        <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">
+          Mock Interview App
+        </h1>
+
+        {/* Role and Skill Selection */}
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-amber-700">Select Role:</label>
+            <select
+              className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm text-emerald-600"
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+            >
+              <option value="">Select a role</option>
+              {roles.map((role, idx) => (
+                <option key={idx} value={role}>
+                  {role}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-amber-700">Select Skill:</label>
+            <select
+              className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm text-emerald-600"
+              value={skill}
+              onChange={(e) => setSkill(e.target.value)}
+              disabled={!role}
+            >
+              <option value="">Select a skill</option>
+              {skillsList.map((skill, idx) => (
+                <option key={idx} value={skill}>
+                  {skill}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <button
+            className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:bg-blue-300"
+            onClick={handleGenerateQuestions}
+            disabled={isGenerating || !role || !skill}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+            {isGenerating ? "Generating Questions..." : "Generate Questions"}
+          </button>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+
+        {/* Loading Spinner */}
+        {isGenerating && (
+          <div className="mt-8 text-center">
+            <div className="animate-spin h-8 w-8 mx-auto border-4 border-blue-500 rounded-full border-t-transparent"></div>
+            <p className="mt-2 text-gray-600">Questions are being generated...</p>
+          </div>
+        )}
+
+        {/* Question Display */}
+        {questions && !isGenerating && (
+          <div className="mt-8">
+            <Question
+              question={questions.mcqs[currentQuestionIndex]}
+              idx={currentQuestionIndex}
+              userAnswers={userAnswers}
+              setUserAnswers={setUserAnswers}
+            />
+
+            <div className="mt-6 flex justify-between">
+              {currentQuestionIndex > 0 && (
+                <button
+                  className="bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600"
+                  onClick={() => setCurrentQuestionIndex(currentQuestionIndex - 1)}
+                >
+                  Previous Question
+                </button>
+              )}
+
+              {currentQuestionIndex < questions.mcqs.length - 1 ? (
+                <button
+                  className="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700"
+                  onClick={handleNextQuestion}
+                >
+                  Next Question
+                </button>
+              ) : (
+                <button
+                  className="bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700"
+                  onClick={handleSubmitAnswers}
+                >
+                  Submit Interview
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Quiz Report */}
+        {quizReport && <QuizReport {...quizReport} />}
+      </div>
     </div>
   );
 }
