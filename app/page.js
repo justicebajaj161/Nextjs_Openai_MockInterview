@@ -94,18 +94,18 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 py-8">
-      <div className="max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-md">
-        <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">
+    <div className="min-h-screen py-8">
+      <div className="max-w-3xl mx-auto p-6 rounded-lg shadow-md">
+        <h1 className="text-3xl font-bold text-center mb-8">
           Mock Interview App
         </h1>
 
         {/* Role and Skill Selection */}
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-amber-700">Select Role:</label>
+            <label className="block text-sm font-medium">Select Role:</label>
             <select
-              className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm text-emerald-600"
+              className="mt-1 block w-full p-2 border rounded-md shadow-sm"
               value={role}
               onChange={(e) => setRole(e.target.value)}
             >
@@ -119,9 +119,9 @@ export default function Home() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-amber-700">Select Skill:</label>
+            <label className="block text-sm font-medium">Select Skill:</label>
             <select
-              className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm text-emerald-600"
+              className="mt-1 block w-full p-2 border rounded-md shadow-sm"
               value={skill}
               onChange={(e) => setSkill(e.target.value)}
               disabled={!role}
@@ -136,7 +136,7 @@ export default function Home() {
           </div>
 
           <button
-            className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:bg-blue-300"
+            className="w-full py-2 px-4 rounded-md hover:bg-secondary disabled:bg-primary bg-primary"
             onClick={handleGenerateQuestions}
             disabled={isGenerating || !role || !skill}
           >
@@ -147,8 +147,8 @@ export default function Home() {
         {/* Loading Spinner */}
         {isGenerating && (
           <div className="mt-8 text-center">
-            <div className="animate-spin h-8 w-8 mx-auto border-4 border-blue-500 rounded-full border-t-transparent"></div>
-            <p className="mt-2 text-gray-600">Questions are being generated...</p>
+            <div className="animate-spin h-8 w-8 mx-auto border-4 rounded-full border-t-transparent"></div>
+            <p className="mt-2">Questions are being generated...</p>
           </div>
         )}
 
@@ -165,7 +165,7 @@ export default function Home() {
             <div className="mt-6 flex justify-between">
               {currentQuestionIndex > 0 && (
                 <button
-                  className="bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600"
+                  className=" py-2 px-4 rounded-md hover:bg-secondary bg-primary "
                   onClick={() => setCurrentQuestionIndex(currentQuestionIndex - 1)}
                 >
                   Previous Question
@@ -174,14 +174,14 @@ export default function Home() {
 
               {currentQuestionIndex < questions.mcqs.length - 1 ? (
                 <button
-                  className="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700"
+                  className="py-2 px-4 rounded-md hover:bg-secondary bg-primary"
                   onClick={handleNextQuestion}
                 >
                   Next Question
                 </button>
               ) : (
                 <button
-                  className="bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700"
+                  className="py-2 px-4 rounded-md hover:bg-green-700"
                   onClick={handleSubmitAnswers}
                 >
                   Submit Interview

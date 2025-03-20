@@ -7,7 +7,7 @@ export default function Question({ question, idx, userAnswers, setUserAnswers })
 
   return (
     <div className="space-y-4">
-      <h3 className="text-xl font-semibold text-gray-800">
+      <h3 className="text-xl font-semibold">
         Question {idx + 1}: {question.mcqs}
       </h3>
       {Object.entries(question.options).map(([key, value]) => (
@@ -21,7 +21,7 @@ export default function Question({ question, idx, userAnswers, setUserAnswers })
             onChange={() => handleAnswerChange(key)}
             className="mr-2"
           />
-          <label htmlFor={`question-${idx}-${key}`} className="text-gray-700">
+          <label htmlFor={`question-${idx}-${key}`}>
             {value}
           </label>
         </div>

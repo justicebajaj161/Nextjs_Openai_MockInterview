@@ -1,5 +1,9 @@
 @import "tailwindcss";
 @plugin "daisyui";
+@plugin "daisyui" {
+  themes: luxury;
+}
+
 .container {
   max-width: 800px;
   margin: 0 auto;
