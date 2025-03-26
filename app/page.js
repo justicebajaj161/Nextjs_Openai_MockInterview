@@ -5,6 +5,7 @@ import Question from "@/components/Question";
 import QuizReport from "@/components/QuizReport";
 import CodingQuestion from "@/components/CodingQuestion";
 import data from "@/data.json";
+import ValidationResults from "@/components/ValidationResults";
 
 export default function Home() {
   const [role, setRole] = useState("");
@@ -21,7 +22,8 @@ export default function Home() {
   const [codingResults, setCodingResults] = useState([]);
   const [showCodingSummary, setShowCodingSummary] = useState(false);
   const [hasSubmitted, setHasSubmitted] = useState(false); // Track if the user has submitted code
-
+// Add to your existing state declarations
+const [validationResults, setValidationResults] = useState(null);
   // Load roles from JSON
   const roles = data.roles.map((roleData) => roleData.role);
 
@@ -166,7 +168,7 @@ export default function Home() {
     <div className="min-h-screen py-8">
       <div className="max-w-3xl mx-auto p-6 rounded-lg shadow-md">
         <h1 className="text-3xl font-bold text-center mb-8">
-          Interviewer
+          Maze lelo.com
         </h1>
 
         {/* Role and Skill Selection */}
@@ -268,13 +270,42 @@ export default function Home() {
           <div className="mt-8">
             <QuizReport {...quizReport} />
             <button
-              className="mt-4 py-2 px-4 rounded-md hover:bg-secondary bg-primary"
-              onClick={handleStartCodingRound}
-            >
-              Start Round 2 (Coding)
-            </button>
-          </div>
-        )}
+      className="mt-4 py-2 px-4 rounded-md hover:bg-secondary bg-primary"
+      onClick={async () => {
+        setIsGenerating(true);
+        try {
+          const response = await fetch("/api/validate-questions", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              questions: questions.mcqs,
+              skill: skill
+            }),
+          });
+          const validationData = await response.json();
+          setValidationResults(validationData);
+        } catch (error) {
+          console.error("Validation error:", error);
+          alert("Validation failed. Please try again.");
+        } finally {
+          setIsGenerating(false);
+        }
+      }}
+      disabled={isGenerating}
+    >
+      {isGenerating ? "Validating..." : "Validate Questions"}
+    </button>
+
+    {validationResults && <ValidationResults results={validationResults} />}
+
+    <button
+      className="mt-4 py-2 px-4 rounded-md hover:bg-secondary bg-primary"
+      onClick={handleStartCodingRound}
+    >
+      Start Round 2 (Coding)
+    </button>
+  </div>
+)}
 
         {/* Coding Round */}
         {currentStage === "coding" && codingQuestions && !isGenerating && !showCodingSummary && (

@@ -23,8 +23,7 @@ export async function POST(request) {
 
   const PROMPT_TEMPLATE = `
     Text: ${role}
-    Generate total 15 MCQ questions out of which 14should be for a ${role} interview focusing on ${skill}.
-    And any one question can be an irrelvant questionout of the topic.
+    Generate 15 MCQ questions for a ${role} interview focusing on ${skill}.
     Start with easy questions and gradually increase difficulty. Ensure that each question has 4 options (A, B, C, D).
     Make sure the questions are not repeating.
     Format the response like the following RESPONSE_JSON:
